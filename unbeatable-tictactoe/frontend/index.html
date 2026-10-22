@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .board-wrap {
+      width: min(100%, 330px);
+      margin: 0 auto;
+      padding: 4px;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: transparent;
+    }
+    .cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: #fff;
+      font-size: clamp(2rem, 7vw, 3rem);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .16s ease, transform .16s ease;
+    }
+    /* Draw only the four inner lines, not an outside border. */
+    .cell:not(:nth-child(3n)) { border-right: 3px solid rgba(255,255,255,.82); }
+    .cell:nth-child(-n+6) { border-bottom: 3px solid rgba(255,255,255,.82); }
+    .cell:not(:disabled):hover {
+      background: rgba(255,255,255,.09);
+    }
+    .cell:not(:disabled):active { transform: scale(.97); }
+    .cell:focus-visible {
+      outline: 2px solid #ff7373;
+      outline-offset: -5px;
+    }
+    .cell:disabled { cursor: default; opacity: 1; }
+    @media (max-width: 420px) {
+      .board-wrap { width: min(100%, 285px); }
+      .cell { font-size: 2.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="board-wrap">
+    <div id="board" class="board" role="group" aria-label="Tic-Tac-Toe board"></div>
+  </div>
+  <script>
+    const boardEl = document.getElementById("board");
+    let lastRender = null;
+
+    function sendMessage(type, data) {
+      window.parent.postMessage(
+        Object.assign({ isStreamlitMessage: true, type }, data || {}),
+        "*"
+      );
+    }
+
+    function setFrameHeight() {
+      sendMessage("streamlit:setFrameHeight", { height: document.body.scrollHeight });
+    }
+
+    function render(args) {
+      const cells = Array.isArray(args.board) ? args.board : Array(9).fill("");
+      const disabled = Boolean(args.disabled);
+      const human = args.human_marker || "X";
+      const ai = args.ai_marker || "O";
+
+      boardEl.innerHTML = "";
+      cells.forEach((value, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "cell";
+        button.setAttribute("aria-label", value ? `Cell ${index + 1}: ${value}` : `Play cell ${index + 1}`);
+        button.textContent = value === "X" ? "❌" : value === "O" ? "⭕" : "";
+        button.disabled = disabled || Boolean(value);
+        button.addEventListener("click", () => {
+          sendMessage("streamlit:setComponentValue", { value: index });
+        });
+        boardEl.appendChild(button);
+      });
+      setFrameHeight();
+    }
+
+    window.addEventListener("message", (event) => {
+      const msg = event.data;
+      if (!msg || msg.type !== "streamlit:render") return;
+      render(msg.args || {});
+    });
+
+    sendMessage("streamlit:componentReady", { apiVersion: 1 });
+    setFrameHeight();
+  </script>
+</body>
+</html>
