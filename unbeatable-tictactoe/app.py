@@ -167,10 +167,10 @@ with st.sidebar:
     st.markdown("---")
     if double_player:
         st.markdown("### 👥 2-Player Rules")
-        st.markdown("Players take turns placing `❌` and `⭕`. First to get 3 in a row wins!")
+        st.markdown("Players take turns placing `❌` and `⭕`.")
     else:
-        st.markdown("### 🤖 About AI")
-        st.markdown("Powered by the **Minimax Algorithm**. Can you outsmart an unbeatable opponent?")
+        st.markdown("### 🤖 By Talha")
+        st.markdown("Powered by the **Minimax Algorithm**. Can you beat an unbeatable opponent?")
 
 
 # Title and Dynamic Subtitle
@@ -199,9 +199,9 @@ else:
 st.markdown("<br>", unsafe_allow_html=True)
 
 
-# AI Move Handling (Only executes in Single Player mode)
+# AI move 
 if not double_player and not st.session_state.game_over and st.session_state.current_player == st.session_state.ai_player:
-    with st.spinner("🤖 AI is calculating the best move..."):
+    with st.spinner("🤖 AI is doing his move"):
         ai_move = st.session_state.ai_player.get_move(st.session_state.board)
         st.session_state.board.make_move(ai_move, st.session_state.ai_player.marker)
         
@@ -218,20 +218,23 @@ if not double_player and not st.session_state.game_over and st.session_state.cur
         st.rerun()
 
 
-# Game Over Banners & Play Again Button
+
 if st.session_state.game_over:
     if double_player:
         if st.session_state.winner == "Player 1":
-            st.success("🎉 **Player 1 (❌) Won!** Fantastic game!")
+            st.success("🎉 **Player 1 (❌) Won!**")
+            st.balloons()
         elif st.session_state.winner == "Player 2":
-            st.success("🎉 **Player 2 (⭕) Won!** Fantastic game!")
+            st.success("🎉 **Player 2 (⭕) Won!** ")
+            st.balloons()
         else:
             st.warning("🤝 **It's a Draw!** Perfectly balanced.")
     else:
         if st.session_state.winner == "AI":
             st.error("🤖 **AI Wins!** The minimax algorithm reigns supreme.")
+            st.balloons()
         elif st.session_state.winner == "Human":
-            st.success("🎉 **Incredible! You Beat the AI!** (Legendary move!)")
+            st.success("🎉 **Impossible! How do You Beat the AI!** ")
             st.balloons()
         else:
             st.warning("🤝 **It's a Draw!** Perfectly balanced.")
@@ -286,7 +289,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 board_state = st.session_state.board.board
 
-# Component disabled check
+
 if double_player:
     component_disabled = st.session_state.game_over
 else:
@@ -331,7 +334,7 @@ if board_click is not None:
                 st.session_state.draw_score = st.session_state.get("draw_score", 0) + 1
 
             else:
-                # Alternate turns between Player 1 and Player 2
+                
                 if st.session_state.current_player.marker == "X":
                     st.session_state.current_player = st.session_state.player2
                 else:
