@@ -104,7 +104,10 @@ if "game_id" not in st.session_state:
     st.session_state.board = Board()
     st.session_state.game_over = False
     st.session_state.winner = None
-    st.session_state.draw_score = 0
+    
+    # Separate draw scores for AI mode vs Double Player mode
+    st.session_state.ai_draw_score = 0
+    st.session_state.p_draw_score = 0
     
 
     st.session_state.human_marker = "X"
@@ -127,7 +130,7 @@ with st.sidebar:
     
     # checkbox for double player mode
     double_player = st.checkbox("👥 Double Player Mode (2P)", value=False, key="double_player_mode")
-    
+        
     st.markdown("---")
     
     if not double_player:
@@ -140,7 +143,6 @@ with st.sidebar:
     
     if st.button("🔄 Reset Scores & Board", use_container_width=True):
         st.session_state.game_id += 1
-        st.session_state.draw_score = 0
         st.session_state.board = Board()
         st.session_state.game_over = False
         st.session_state.winner = None
@@ -148,12 +150,14 @@ with st.sidebar:
         if double_player:
             st.session_state.p1_score = 0
             st.session_state.p2_score = 0
+            st.session_state.p_draw_score = 0
             st.session_state.player1 = HumanPlayer("X")
             st.session_state.player2 = HumanPlayer("O")
             st.session_state.current_player = st.session_state.player1
         else:
             st.session_state.human_score = 0
             st.session_state.ai_score = 0
+            st.session_state.ai_draw_score = 0
             st.session_state.human_marker = choice
             st.session_state.ai_marker = "O" if choice == "X" else "X"
             st.session_state.human_player = HumanPlayer(st.session_state.human_marker)
@@ -173,26 +177,26 @@ with st.sidebar:
         st.markdown("Powered by the **Minimax Algorithm**. Can you beat an unbeatable opponent?")
 
 
-# Title and Dynamic Subtitle
+
 st.markdown('<p class="game-title">Tic-Tac-Toe</p>', unsafe_allow_html=True)
 subtitle_text = "Double Player Mode" if double_player else "Classic Strategy • Human vs. Unbeatable AI"
 st.markdown(f'<p class="game-subtitle">{subtitle_text}</p>', unsafe_allow_html=True)
 
 
-# Dynamic Scoreboard
+
 sc1, sc2, sc3 = st.columns(3)
 if double_player:
     with sc1:
         st.markdown(f'<div class="score-card">Player 1 (❌)<br>🏆 {st.session_state.get("p1_score", 0)}</div>', unsafe_allow_html=True)
     with sc2:
-        st.markdown(f'<div class="score-card">Draws<br>🤝 {st.session_state.get("draw_score", 0)}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="score-card">Draws<br>🤝 {st.session_state.get("p_draw_score", 0)}</div>', unsafe_allow_html=True)
     with sc3:
         st.markdown(f'<div class="score-card">Player 2 (⭕)<br>🏆 {st.session_state.get("p2_score", 0)}</div>', unsafe_allow_html=True)
 else:
     with sc1:
         st.markdown(f'<div class="score-card">You ({get_emoji(st.session_state.human_marker)})<br>🏆 {st.session_state.human_score}</div>', unsafe_allow_html=True)
     with sc2:
-        st.markdown(f'<div class="score-card">Draws<br>🤝 {st.session_state.draw_score}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="score-card">Draws<br>🤝 {st.session_state.ai_draw_score}</div>', unsafe_allow_html=True)
     with sc3:
         st.markdown(f'<div class="score-card">AI ({get_emoji(st.session_state.ai_marker)})<br>🤖 {st.session_state.ai_score}</div>', unsafe_allow_html=True)
 
@@ -212,7 +216,7 @@ if not double_player and not st.session_state.game_over and st.session_state.cur
         elif st.session_state.board.is_full():
             st.session_state.game_over = True
             st.session_state.winner = "Draw"
-            st.session_state.draw_score += 1
+            st.session_state.ai_draw_score = st.session_state.get("ai_draw_score", 0) + 1
         else:
             st.session_state.current_player = st.session_state.human_player
         st.rerun()
@@ -331,7 +335,7 @@ if board_click is not None:
             elif st.session_state.board.is_full():
                 st.session_state.game_over = True
                 st.session_state.winner = "Draw"
-                st.session_state.draw_score = st.session_state.get("draw_score", 0) + 1
+                st.session_state.p_draw_score = st.session_state.get("p_draw_score", 0) + 1
 
             else:
                 
@@ -363,7 +367,7 @@ if board_click is not None:
             elif st.session_state.board.is_full():
                 st.session_state.game_over = True
                 st.session_state.winner = "Draw"
-                st.session_state.draw_score += 1
+                st.session_state.ai_draw_score = st.session_state.get("ai_draw_score", 0) + 1
 
             else:
                 st.session_state.current_player = st.session_state.ai_player
@@ -385,7 +389,7 @@ if board_click is not None:
                 elif st.session_state.board.is_full():
                     st.session_state.game_over = True
                     st.session_state.winner = "Draw"
-                    st.session_state.draw_score += 1
+                    st.session_state.ai_draw_score = st.session_state.get("ai_draw_score", 0) + 1
 
                 else:
                     st.session_state.current_player = st.session_state.human_player
