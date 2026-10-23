@@ -104,8 +104,7 @@ if "game_id" not in st.session_state:
     st.session_state.board = Board()
     st.session_state.game_over = False
     st.session_state.winner = None
-    
-    # Separate draw scores for AI mode vs Double Player mode
+   
     st.session_state.ai_draw_score = 0
     st.session_state.p_draw_score = 0
     
@@ -118,7 +117,6 @@ if "game_id" not in st.session_state:
     st.session_state.ai_score = 0
     st.session_state.current_player = st.session_state.human_player
 
-    #for double player checkbox
     st.session_state.p1_score = 0
     st.session_state.p2_score = 0
     st.session_state.player1 = HumanPlayer("X")
